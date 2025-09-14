@@ -146,7 +146,6 @@ docs_dir: docs
 
 extra:
   google_site_verification: 1oHG1nVTIVTV_kdxJRh9V--MFWBvw1QIztgVrPCzoss
-  social_image: {% if not title and "//" in social.link %}
   og_image_w: 1200
   og_image_h: 630
   analytics:
@@ -155,18 +154,10 @@ extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/sahipkirann
-    - icon: simple/x
-      link: https://x.com/lautarovculic
-    - icon: fontawesome/brands/youtube
-      link: {% if not title and "//" in social.link %}
     - icon: fontawesome/brands/linkedin
       link: https://linkedin.com/in/emirec
-    - icon: simple/hackerone
-      link: {% if not title and "//" in social.link %}
     - icon: simple/bugcrowd
       link: https://bugcrowd.com/sahipkiran
-    - icon: fontawesome/solid/link
-      link: {% if not title and "//" in social.link %}
   generator: false
   
 extra_css:
