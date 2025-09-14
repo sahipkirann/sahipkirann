@@ -1,11 +1,11 @@
-site_name: Mobile Writeups
-site_url: https://lautarovculic.github.io
-site_description: Mobile Security Writeups - CTF by Lautaro Villarreal Culic'
-site_author: Lautaro Daniel Villarreal Culic'
-copyright: Copyright &copy; 2025 - Lautaro D. Villarreal Culic'
+site_name: Cyber Security Writeups
+site_url: https://sahipkirann.github.io
+site_description: Cyber Security Writeups
+site_author: Recep Emir Yardım
+copyright: Copyright &copy; 2025 - Recep Emir Yardım
 
-repo_name: lautarovculic/lautarovculic.github.io
-repo_url: https://github.com/lautarovculic/lautarovculic.github.io
+repo_name: sahipkirann/sahipkirann.github.io
+repo_url: https://github.com/sahipkirann/sahipkirann.github.io
 edit_uri: ""
 
 strict: false
@@ -80,8 +80,8 @@ plugins:
   - roamlinks
   - rss: 
       match_path: "writeups/.*"
-      feed_title: "Lautaro • Mobile Security Researcher"
-      feed_description: "Mobile Security Writeups, Android/iOS Reversing."
+      feed_title: "Sahipkiran • Cyber Security Researcher"
+      feed_description: "Cyber Security Writeups"
   - glightbox
   - minify: 
       minify_html: true
@@ -146,7 +146,7 @@ docs_dir: docs
 
 extra:
   google_site_verification: 1oHG1nVTIVTV_kdxJRh9V--MFWBvw1QIztgVrPCzoss
-  social_image: https://lautarovculic.github.io/assets/social-card.png
+  social_image: https://sahipkirann.github.io/assets/social-card.png
   og_image_w: 1200
   og_image_h: 630
   analytics:
@@ -154,19 +154,19 @@ extra:
     property: !ENV GOOGLE_ANALYTICS_KEY
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/lautarovculic
+      link: https://github.com/sahipkirann
     - icon: simple/x
       link: https://x.com/lautarovculic
     - icon: fontawesome/brands/youtube
-      link: https://www.youtube.com/@TheHackingHub
+      link: 
     - icon: fontawesome/brands/linkedin
-      link: https://linkedin.com/in/lautarovculic
+      link: https://linkedin.com/in/emirec
     - icon: simple/hackerone
-      link: https://hackerone.com/lautaro
+      link: 
     - icon: simple/bugcrowd
-      link: https://bugcrowd.com/lautarovculic
+      link: https://bugcrowd.com/sahipkiran
     - icon: fontawesome/solid/link
-      link: https://lautarovculic.com
+      link: 
   generator: false
   
 extra_css:
