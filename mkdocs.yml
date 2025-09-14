@@ -120,8 +120,8 @@ markdown_extensions:
   - pymdownx.magiclink:
       normalize_issue_symbols: true
       repo_url_shorthand: true
-      user: lautarovculic
-      repo: lautarovculic.github.io
+      user: sahipkirann
+      repo: sahipkirann.github.io
   - pymdownx.mark
   - pymdownx.smartsymbols
   - pymdownx.snippets:
