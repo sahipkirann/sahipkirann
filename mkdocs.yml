@@ -9,11 +9,11 @@ nav:
   - Home: index.md
   - Writeups:
       - Malware Development & Analysis:
-          - ilk-yazi: "Malware Development & Analysis/ilk-yazi.md"
+          - ilk-yazi: "Malware Development & Analysis/index.md"
       - Mobile Security:
-          - ilk-yazi: "Mobile Security/ilk-yazi.md"
+          - ilk-yazi: "Mobile Security/index.md"
       - Web Security:
-          - ilk-yazi: "Web Security/ilk-yazi.md"
+          - ilk-yazi: "Web Security/index.md"
 
 
 repo_name: sahipkirann/sahipkirann.github.io
