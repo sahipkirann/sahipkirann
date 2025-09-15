@@ -1,29 +1,4 @@
-title: "ALLSAFE Android App WriteUp Part 1 | by Recep Emir | Sep, 2025 | Medium"
-source: https://medium.com/@emirec/allsafe-android-app-writeup-p-d93e4d24708d
-date: 2025-09-15 12:34
-tags: 
-description: ALLSAFE Android App WriteUp Part 1 Merhabalar, bu yazımda allsafe zafiyetli mobil uygulaması anlatacağım. Apk dosyasını emülatöre yükleyip açtığımızda bizi yukarıdaki ekran ...
-
-
-[source](https://medium.com/@emirec/allsafe-android-app-writeup-p-d93e4d24708d)
-
 # ALLSAFE Android App WriteUp Part 1
-
-![][2]
-
-[Recep Emir][1]
-
-9 min read
-
-·
-
-Sep 4, 2025
-
---
-
-Share
-
-Press enter or click to view image in full size
 
 Merhabalar, bu yazımda [allsafe][3] zafiyetli mobil uygulaması anlatacağım.
 
