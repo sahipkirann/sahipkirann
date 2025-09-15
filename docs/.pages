@@ -1,5 +1,6 @@
 nav:
   - Home: index.md
   - writeups
-  - MalwareDevelopmentAndAnalysis
-  - WebSecurity
+  - Malware Development & Analysis
+  - Web Security
+  - Mobile Security
