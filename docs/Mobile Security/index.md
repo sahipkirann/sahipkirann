@@ -2,4 +2,4 @@
 
 ---
 
-RECEP EMİR YARDIM - MOBILE SECURITY RESEARCHER
+Burada mobil güvenliği ile ilgili makaleler yer alacaktır.
