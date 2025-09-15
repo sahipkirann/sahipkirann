@@ -1,11 +1,11 @@
-site_name: Mobile Writeups
-site_url: https://lautarovculic.github.io
-site_description: Mobile Security Writeups - CTF by Lautaro Villarreal Culic'
-site_author: Lautaro Daniel Villarreal Culic'
-copyright: Copyright &copy; 2025 - Lautaro D. Villarreal Culic'
+site_name: Cyber Security Writeups
+site_url: https://sahipkirann.github.io
+site_description: Cyber Security Writeups - Recep Emir Yardım
+site_author: Recep Emir Yardım
+copyright: Copyright &copy; 2025 - Recep Emir Yardım
 
-repo_name: lautarovculic/lautarovculic.github.io
-repo_url: https://github.com/lautarovculic/lautarovculic.github.io
+repo_name: sahipkirann/sahipkirann.github.io
+repo_url: https://github.com/sahipkirann/sahipkirann.github.io
 edit_uri: ""
 
 strict: false
@@ -80,8 +80,8 @@ plugins:
   - roamlinks
   - rss: 
       match_path: "writeups/.*"
-      feed_title: "Lautaro • Mobile Security Researcher"
-      feed_description: "Mobile Security Writeups, Android/iOS Reversing."
+      feed_title: "Sahipkıran • Security Researcher"
+      feed_description: "Security Writeups"
   - glightbox
   - minify: 
       minify_html: true
@@ -120,8 +120,8 @@ markdown_extensions:
   - pymdownx.magiclink:
       normalize_issue_symbols: true
       repo_url_shorthand: true
-      user: lautarovculic
-      repo: lautarovculic.github.io
+      user: sahipkirann
+      repo: sahipkirann.github.io
   - pymdownx.mark
   - pymdownx.smartsymbols
   - pymdownx.snippets:
@@ -146,7 +146,7 @@ docs_dir: docs
 
 extra:
   google_site_verification: 1oHG1nVTIVTV_kdxJRh9V--MFWBvw1QIztgVrPCzoss
-  social_image: https://lautarovculic.github.io/assets/social-card.png
+  #social_image: https://lautarovculic.github.io/assets/social-card.png
   og_image_w: 1200
   og_image_h: 630
   analytics:
@@ -154,19 +154,11 @@ extra:
     property: !ENV GOOGLE_ANALYTICS_KEY
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/lautarovculic
-    - icon: simple/x
-      link: https://x.com/lautarovculic
-    - icon: fontawesome/brands/youtube
-      link: https://www.youtube.com/@TheHackingHub
+      link: https://github.com/sahipkirann
     - icon: fontawesome/brands/linkedin
-      link: https://linkedin.com/in/lautarovculic
-    - icon: simple/hackerone
-      link: https://hackerone.com/lautaro
+      link: https://linkedin.com/in/emirec
     - icon: simple/bugcrowd
-      link: https://bugcrowd.com/lautarovculic
-    - icon: fontawesome/solid/link
-      link: https://lautarovculic.com
+      link: https://bugcrowd.com/sahipkiran
   generator: false
   
 extra_css:
