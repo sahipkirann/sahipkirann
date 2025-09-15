@@ -4,6 +4,18 @@ site_description: Cyber Security Writeups
 site_author: Recep Emir Yardım
 copyright: Copyright &copy; 2025 - Recep Emir Yardım
 
+
+nav:
+  - Home: index.md
+  - Writeups:
+      - Malware Development & Analysis:
+          - ilk-yazi: "Malware Development & Analysis/ilk-yazi.md"
+      - Mobile Security:
+          - ilk-yazi: "Mobile Security/ilk-yazi.md"
+      - Web Security:
+          - ilk-yazi: "Web Security/ilk-yazi.md"
+
+
 repo_name: sahipkirann/sahipkirann.github.io
 repo_url: https://github.com/sahipkirann/sahipkirann.github.io
 edit_uri: ""
