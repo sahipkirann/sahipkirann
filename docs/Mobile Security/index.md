@@ -2,4 +2,4 @@
 
 ---
 
-Browse the writeups using the navigation menu or explore specific categories above.
+RECEP EMİR YARDIM - MOBILE SECURITY RESEARCHER
