@@ -8,12 +8,9 @@ copyright: Copyright &copy; 2025 - Recep Emir Yardım
 nav:
   - Home: index.md
   - Writeups:
-      - Malware Development & Analysis:
-          - ilk-yazi: "Malware Development & Analysis/index.md"
-      - Mobile Security:
-          - ilk-yazi: "Mobile Security/index.md"
-      - Web Security:
-          - ilk-yazi: "Web Security/index.md"
+      - Malware Development & Analysis: "Malware Development & Analysis/index.md"
+      - Mobile Security: "Mobile Security/index.md"
+      - Web Security: "Web Security/index.md"
 
 
 repo_name: sahipkirann/sahipkirann.github.io
