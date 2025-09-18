@@ -1,8 +1,6 @@
 
 # ALLSAFE Android App WriteUp Part 1
 
-
-
 Merhabalar, bu yazımda [allsafe ](https://github.com/t0thkr1s/allsafe-android/releases/download/v1.5/allsafe.apk)zafiyetli mobil uygulaması anlatacağım.
 
 ![](https://cdn-images-1.medium.com/max/2000/1*xukTCLPq7WaREz1b0qIILw.png)
@@ -554,7 +552,7 @@ webView.loadData(payload.getText().toString(), "text/html", "UTF-8"); → Kullan
 
 **Olası Saldırı Senaryoları:**
 
-Kullanıcı zararlı bir payload girdiğinde <script>alert("XSS Found.. :)")</script> gibi XSS payload’ları çalıştırabilir.
+Kullanıcı zararlı bir payload girdiğinde <script>alert('XSS found..')</script> gibi XSS payload’ları çalıştırabilir.
 
 Uygulama zararlı sitelere yönlendirilebilir (loadUrl("http://evil.com")).
 
