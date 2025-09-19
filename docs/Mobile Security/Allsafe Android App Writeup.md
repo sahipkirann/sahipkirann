@@ -1,5 +1,5 @@
 
-# ALLSAFE Android App WriteUp Part 1
+# ALLSAFE Android App WriteUp
 
 Merhabalar, bu yazımda [allsafe ](https://github.com/t0thkr1s/allsafe-android/releases/download/v1.5/allsafe.apk)zafiyetli mobil uygulaması anlatacağım.
 
