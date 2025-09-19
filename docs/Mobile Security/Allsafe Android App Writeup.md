@@ -551,6 +551,7 @@ webView.loadUrl(payload.getText().toString()); → Kullanıcı tarafından giril
 webView.loadData(payload.getText().toString(), "text/html", "UTF-8"); → Kullanıcı girdisi filtrelenmeden HTML/JS olarak render ediliyor.
 
 **Olası Saldırı Senaryoları:**
+<script>alert('XSS found..')</script>
 
 Uygulama zararlı sitelere yönlendirilebilir (loadUrl("http://evil.com")).
 
