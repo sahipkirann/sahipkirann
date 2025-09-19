@@ -884,11 +884,11 @@ Eğer servis exported="true" ise, başka bir uygulama kötü niyetli olarak bu s
         }
     }
 
-Yetkisiz kayıt riski**: **Servis başka bir uygulama tarafından tetiklenirse, kullanıcı haberi olmadan mikrofon kaydı başlatılır.
+Yetkisiz kayıt riski : Servis başka bir uygulama tarafından tetiklenirse, kullanıcı haberi olmadan mikrofon kaydı başlatılır.
 
-İzin kontrolü eksikliği**: **ActivityCompat.checkSelfPermission() sadece activity’de kontrol edilmişti, servis içinde ek bir izin doğrulaması yok.
+İzin kontrolü eksikliği : ActivityCompat.checkSelfPermission() sadece activity’de kontrol edilmişti, servis içinde ek bir izin doğrulaması yok.
 
-Dosya yolu hassasiyeti**:**
+Dosya yolu hassasiyeti :
 
     File outputFile = getOutputFile(); 
     this.mediaRecorder.setOutputFile(outputFile.getAbsolutePath());
@@ -905,7 +905,7 @@ Hassas ses kayıtları dışarı sızabilir.
         return new File(fullPath);
     }
 
-Dosya dışa açık**:** Environment.getExternalStoragePublicDirectory herkesin erişebileceği bir yol.
+Dosya dışa açık : Environment.getExternalStoragePublicDirectory herkesin erişebileceği bir yol.
 
 Hassas veriler (mikrofon kayıtları) cihazdaki diğer uygulamalar tarafından okunabilir veya silinebilir.
 
