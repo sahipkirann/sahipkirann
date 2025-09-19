@@ -552,7 +552,7 @@ webView.loadData(payload.getText().toString(), "text/html", "UTF-8"); → Kullan
 
 **Olası Saldırı Senaryoları:**
 
-Kullanıcı zararlı bir payload girdiğinde <script>alert('XSS found..')</script> gibi XSS payload’ları çalıştırabilir.
+Kullanıcı zararlı bir payload girdiğinde **<script>alert('XSS found..')</script>** gibi XSS payload’ları çalıştırabilir.
 
 Uygulama zararlı sitelere yönlendirilebilir (loadUrl("http://evil.com")).
 
