@@ -9,7 +9,7 @@ Apk dosyasını emülatöre yükleyip açtığımızda bizi yukarıdaki ekran ka
 
 Ve apk dosyasının kaynak kodlarına ulaşmak için [jadx-gui](https://sourceforge.net/projects/jadx.mirror/) aracını kullanıyorum.
 
-##**Zafiyet Adı** : Insecure Logging
+## **Zafiyet Adı** : Insecure Logging
 
 **Zafiyet Tanımı** : Insecure Logging zafiyeti, uygulamanın kullanıcıya veya sisteme ait hassas verileri log dosyalarına kaydetmesi ve bu verilerin yetkisiz kişiler tarafından okunabilir hale gelmesidir.
 
@@ -41,7 +41,7 @@ Kodu incelediğimizde zafiyetin aşağıdaki satırdan dolayı oluştuğunu anl�
 
     Log.d("ALLSAFE", "User entered secret: " + secret.getText().toString());
 
-##**Zafiyet Adı** : Hardcoded Credentials
+## **Zafiyet Adı** : Hardcoded Credentials
 
 **Zafiyet Tanımı** : Hardcoded Credentials zafiyeti, bir uygulamanın kaynak kodu içerisinde kullanıcı adı, parola, API anahtarı, erişim tokeni, şifreleme anahtarı gibi kimlik doğrulama veya yetkilendirme bilgilerini sabit (hardcode) olarak barındırması durumudur. Bu bilgiler genellikle uygulama paketinin tersine mühendislik (reverse engineering) yoluyla açığa çıkarılabilir. Sonuç olarak saldırgan, bu kimlik bilgilerini ele geçirerek uygulamanın arka uç servislerine, veritabanına veya üçüncü taraf sistemlere yetkisiz erişim sağlayabilir.
 
@@ -93,7 +93,7 @@ strings.xml dosyasına gidip dev_env stringinin karşılığına bakalım.
 
 Söylediği username:password ‘ün karşılığı “admin:password123” imiş.
 
-##**Zafiyet Adı : Firebase Database**
+## **Zafiyet Adı : Firebase Database**
 
 **Zafiyet Tanımı** : Firebase Database zafiyeti, geliştiricilerin Firebase Realtime Database veya Firestore yapılandırmalarında gerekli erişim kontrolünü sağlamaması sonucu ortaya çıkar. Firebase Realtime Database, URL’ye .json eklenerek erişilebilen bir REST API olarak çalışır; eğer read/write kuralları “anyone” (herkes) erişimine açık bırakılırsa, kimliği doğrulanmamış saldırganlar veritabanına doğrudan erişebilir. Bu durum, verilerin izinsiz okunması, değiştirilmesi veya silinmesi gibi ciddi güvenlik açıklarına yol açar. Bu durum saldırgana:
 
@@ -133,7 +133,7 @@ Kaynak kodunda görüldüğü üzere firebase database’e ait url adresi string
 
 Görüldüğü üzere konfigürasyon hatasından kaynaklı olarak url adresinin sonuna .json koyulduğunda ilgili endpointe ulaşılabiliniyor.
 
-##**Zafiyet Adı** : Insecure Shared Preferences
+## **Zafiyet Adı** : Insecure Shared Preferences
 
 **Zafiyet Tanımı** : Insecure Shared Preferences zafiyeti, Android uygulamalarının SharedPreferences mekanizmasını kullanarak hassas verileri (örneğin kullanıcı adı, parola, token, API anahtarı, kredi kartı bilgisi vb.) şifrelenmeden veya yeterli erişim kontrolü olmadan depolaması durumunda ortaya çıkar. Bu veriler, cihaz root edilmişse veya kötü amaçlı bir uygulama cihazda çalıştırılmışsa kolayca erişilebilir, okunabilir ve manipüle edilebilir. Bu durum kullanıcı verilerinin çalınmasına, kimlik doğrulama bypass’ına veya hesapların ele geçirilmesine yol açabilir.
 
@@ -149,7 +149,7 @@ Ardından ilgili verilerin şifreli mi şifresiz mi saklandığını belirlemek 
 
 Görüldüğü üzere şifresiz bir şekilde saklanıyorlar.
 
-##**Zafiyet Adı** : SQL Injection
+## **Zafiyet Adı** : SQL Injection
 
 **Zafiyet Tanımı** : SQL Injection zafiyeti, bir uygulamanın kullanıcıdan aldığı veri üzerinde yeterli doğrulama veya filtreleme yapmadan SQL sorgularına doğrudan dahil etmesi durumunda ortaya çıkar. Saldırgan, özel olarak hazırlanmış girişler (payload) kullanarak veritabanına yetkisiz erişim sağlayabilir, veri sızıntısı yaratabilir, verileri değiştirebilir veya silebilir, hatta bazı durumlarda uygulamanın çalıştığı sunucu üzerinde komut çalıştırabilir. Bu zafiyet genellikle web uygulamaları, API’ler veya mobil uygulamaların backend servislerinde görülür.
 
@@ -197,7 +197,7 @@ Resimde görüldüğü gibi bütün kullanıcıların kullanıcı adı ve şifre
 
 Çünkü bizim gönderdiğimiz kullanıcı adı ve şifre sql komutunda bir manipülasyona yol açtı. Kullanıcı adını girdikten sonra “or 1=1 — ” şeklinde devam ettik. Burada 1=1 zaten doğru ve “or” ile kullanınca kullanıcı adı doğru olsa da olmasa da sorgu doğru olarak kabul edilecek ve “ — “ (iki tire) sql sorgularında yorum satırı oluşturmak için kullanılır yani iki tireden sonraki sorgunun bir önemi kalmayacak bu şekilde sql komutunun tamamı doğru sonuç dönecek şekilde manipüle edecektir.
 
-##**Zafiyet Adı** : PIN Bypass
+## **Zafiyet Adı** : PIN Bypass
 
 **Zafiyet Tanımı** : PIN Bypass zafiyeti, bir uygulamanın veya cihazın kullanıcıya ait PIN (Personal Identification Number) doğrulamasını atlamaya veya atlatılabilir hale gelmesine izin veren bir güvenlik açığıdır. Bu zafiyet, kullanıcı kimliğinin yeterince doğrulanmaması, hatalı oturum yönetimi veya eksik güvenlik kontrolleri nedeniyle oluşabilir. Saldırgan, PIN doğrulamasını atlayarak uygulamaya veya cihazdaki hassas verilere yetkisiz erişim sağlayabilir.
 
@@ -265,7 +265,7 @@ Doğru PIN : 4863 imiş.
 
 Görüldüğü üzere yine başarılı bir şekilde bypass ettik.
 
-##**Zafiyet Adı** : Root Detection Bypass
+## **Zafiyet Adı** : Root Detection Bypass
 
 **Zafiyet Tanımı** : Root Detection Bypass zafiyeti, Android uygulamalarında geliştiriciler tarafından cihazın rootlu olup olmadığını tespit etmek için eklenen kontrollerin saldırgan tarafından atlatılması durumudur. Normal şartlarda root edilmiş cihazlarda uygulamanın çalışması engellenmeli veya güvenlik seviyeleri artırılmalıdır. Ancak bu kontrollerin zayıf veya yanlış uygulanması, saldırganların uygulamanın root tespit mekanizmasını manipüle ederek rootlu cihazlarda çalıştırmasına ve böylece güvenlik önlemlerini devre dışı bırakmasına neden olur. Bu durum, saldırganların uygulamayı tersine mühendislik ile analiz etmesini, bellek manipülasyonu yapmasını veya hassas verileri daha kolay elde etmesini mümkün kılar.
 
@@ -318,7 +318,7 @@ Sorunsuz çalıştı.
 
 Görüldüğü üzere root detection mekanizmasını bypass etmeyi başardık.
 
-##**Zafiyet Adı** : Deep Link Exploitation
+## **Zafiyet Adı** : Deep Link Exploitation
 
 **Zafiyet Tanımı** : Deep Link Exploitation zafiyeti, mobil uygulamalarda kullanılan derin bağlantı (deep link) mekanizmasının güvenli şekilde doğrulanmaması sonucu ortaya çıkar. Deep linkler, belirli bir uygulama ekranına veya işlevine doğrudan yönlendirme yapmayı sağlar. Eğer uygulama, deep link ile gelen parametreleri veya çağrıları yeterli kimlik doğrulama ve yetkilendirme kontrolü olmadan işlerse, saldırgan özel hazırlanmış bir link aracılığıyla uygulamanın kritik fonksiyonlarına erişebilir. Bu durum, yetkisiz kullanıcıların hesap ayarlarını değiştirmesi, oturum açmadan yetkili ekranlara yönlenmesi veya hassas işlemleri tetiklemesi gibi güvenlik risklerine yol açar.
 
@@ -411,7 +411,7 @@ Komutumuzu çalıştırdıktan sonra şöyle bir çıktı alıyoruz.
 
 Ve görev tamamlandı.
 
-##**Zafiyet Adı** : Insecure Broadcast Receiver
+## **Zafiyet Adı** : Insecure Broadcast Receiver
 
 **Zafiyet Tanımı** : Insecure Broadcast Receiver zafiyeti, Android uygulamalarında kullanılan Broadcast Receiver bileşenlerinin uygun güvenlik kontrolleri olmadan tanımlanması veya dışarıya açık bırakılması durumunda ortaya çıkar. Eğer bir Broadcast Receiver exported="true" olarak işaretlenmiş ve herhangi bir yetkilendirme (permission) kontrolü uygulanmamışsa, diğer uygulamalar veya saldırganlar bu receiver’a kötü niyetli broadcast intent mesajları gönderebilir. Bu durum, uygulama içinde yetkisiz işlemlerin tetiklenmesine, hassas bilgilere erişilmesine veya uygulamanın beklenmedik şekilde davranmasına yol açabilir.
 
@@ -500,7 +500,7 @@ Bu satırda da görüldüğü üzere saldırgan notification mesajı gösterebil
 
 ![](https://cdn-images-1.medium.com/max/2000/1*puAWeaOkhBArUboI3mRdLA.png)
 
-##**Zafiyet Adı** : WebView Injection / XSS
+## **Zafiyet Adı** : WebView Injection / XSS
 
 **Zafiyet Tanımı** : Uygulamada kullanılan WebView bileşeni, kullanıcı tarafından girilen veriyi herhangi bir doğrulama veya filtreleme olmaksızın loadUrl() ve loadData() metodları aracılığıyla işliyor. loadUrl() fonksiyonu kullanıcı tarafından sağlanan bir URL’yi doğrudan çalıştırırken, loadData() fonksiyonu girilen HTML/JavaScript kodunu işleyerek tarayıcı motorunda render ediyor. Ayrıca setJavaScriptEnabled(true) kullanılması, saldırganın zararlı JavaScript kodlarını çalıştırmasına imkân tanıyor. Bu durum, kötü niyetli bir kullanıcının uygulama içerisinde XSS saldırısı gerçekleştirmesine, zararlı web sayfalarına yönlendirme yapmasına veya uygulama içi verileri manipüle etmesine neden olabilir.
 
@@ -574,7 +574,7 @@ Yukarıdaki kod satırı WebView içerisinden cihazdaki dosya sistemine erişime
 
 Yukarıdaki payload ile hosts dosyasına bu şekilde erişim sağlayabiliyoruz.
 
-##**Zafiyet Adı** : Certificate Pinning Bypass or SSL Pinning Bypass
+## **Zafiyet Adı** : Certificate Pinning Bypass or SSL Pinning Bypass
 
 **Zafiyet Tanımı** : Mobil uygulamada SSL/TLS sertifika doğrulaması için uygulanan Certificate Pinning mekanizması etkisiz hale getirilebilmektedir. Normal şartlarda certificate pinning, istemci ile sunucu arasındaki iletişimde yalnızca belirli bir sertifikaya güvenilmesini sağlar ve ortadaki adam (MitM) saldırılarını engeller. Ancak, uygulamada bu kontrolün atlatılabilmesi sonucunda, saldırgan tersine mühendislik, runtime hooking (Frida, Xposed) veya zayıf pinning implementasyonu kullanarak SSL trafiğini çözümleyebilir. Bu durum, uygulamanın güvenli iletişim mekanizmasını zayıflatır ve şifreli olması gereken verilerin (kullanıcı adı, parola, token, oturum bilgileri vb.) saldırgan tarafından ele geçirilmesine yol açar.
 
@@ -620,7 +620,7 @@ Scripti nasıl çalıştıracağınız aslında scriptin yayınlandığı sayfad
 
 Burp suite aracında da gördüğümüz gibi isteğimiz üzerimizden geçiyor.
 
-##**Zafiyet Adı** : Weak Cryptography
+## **Zafiyet Adı** : Weak Cryptography
 
 **Zafiyet Tanımı** : Uygulama, hassas verileri şifrelemek ve bütünlüğünü sağlamak için güvensiz kriptografik yöntemler kullanmaktadır.
 
@@ -720,7 +720,7 @@ PKCS5Padding → Şifreleme öncesi veriye padding (doldurma) yapılması.
 
 Yani mesaj AES ile, ECB modunda ve PKCS5 padding kullanılarak şifreleniyor.
 
-##**Zafiyet Adı** : Insecure Service
+## **Zafiyet Adı** : Insecure Service
 
 **Zafiyet Tanımı** : Android uygulamaları, bazı servislerini diğer uygulamalara açık bir şekilde sunabilir. Bu durum, exported özelliği yanlış yapılandırılmış servisler veya gereksiz izinlerle birlikte kullanıldığında saldırganların uygulamanın işlevlerine yetkisiz erişim sağlamasına olanak tanır. Bu zafiyet, hassas verilerin sızmasına, uygulama davranışının değiştirilmesine veya arka planda yetkisiz işlemlerin yürütülmesine yol açabilir. Özellikle servisler, Intent tabanlı iletişim ile tetiklenebiliyorsa, kötü niyetli uygulamalar tarafından kolayca manipüle edilebilir.
 
